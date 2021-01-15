@@ -1,0 +1,12 @@
+name: HPV_iSASI_Rates
+title: HPV_iSASI_Rates
+username:
+account: interventionsandimplementation
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3478380
+bundleId: 4101915
+url: https://interventionsandimplementation.shinyapps.io/HPV_iSASI_Rates/
+when: 1610748799.50651
+asMultiple: FALSE
+asStatic: FALSE
