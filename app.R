@@ -2205,22 +2205,33 @@ server <- function(input, output, session) {
     
     savedRates <- data.frame(healthSystem,
       Q27, Q27_other, Q28, Q28_1, Q28_2, Q28_3, Q28_4, Q28_other,
-                             Q29, Q30,
+                             Q29, 
                              # Rates - numbers
-                             baselineRates,
+                             baselineRates, Q30,
                              Q31, Q31_other, Q32, Q32_details, Q32_details1, Q32_details2, Q32_details3, Q32_details4,
                              Q32_other, Q33, Q33_other, Q34)
     
-    
     dbWriteTable(myDB, "rates", savedRates, overwrite = T)
     storage_upload(DataSrc, userFilename)
-    return(savedRates)
+    
+    names(savedRates) <- c("HealthSystem", "Q1", "Q1_Other", "Q2",
+                           "q2_drop1", "Q2_drop2", "q2_drop3", "q2_drop4",
+                           "Q2_other", "Q3",names(baselineRates), "Q4", "Q5",
+                           "Q5_other", "Q6", 
+                           "Q6_details",	"Q6_drop1",	"Q6_drop2",	"Q6_drop3",	"Q6_drop4",
+                           "Q6_other",	"Q7",	"Q7_other",	"Q8")
+    savedRates2 <- savedRates[,c("HealthSystem", "Q1", "Q1_Other", "Q2",
+                  "Q3", names(baselineRates), "Q4", "Q5",
+                  "Q5_other", "Q6", "Q6_details",
+                  "Q7", "Q7_other", "Q8")]
+    
+    return(savedRates2)
     
   })
   
   output$downloadData <- downloadHandler(
     filename = function() {
-      paste(paste0("HPV Vaccination rates - ", Sys.Date()), ".csv", sep = "")
+      paste(paste0("HPV Vaccination rates - ", Sys.Date()), ".xlsx", sep = "")
     },
     content = function(file) {
       WriteXLS(saveData(), file, AllText = T)
