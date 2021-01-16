@@ -37,7 +37,7 @@ rm(list=ls())
 
 ui = dashboardPage(
   title = "HPV Vaccination Systems and Strategies Inventory 2021",
-  header = dashboardHeader(title = textOutput("username")),
+  header = dashboardHeader(title = "Baseline vaccination rates"),
   
   
   # Sidebar layout ----------------------------------------------------------
