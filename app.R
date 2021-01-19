@@ -258,7 +258,6 @@ server <- function(input, output, session) {
     storage_download(DataSrc, userFilename, overwrite = T)
   }
   
-  dbDisconnect(inputData)
   myDB <- dbConnect(SQLite(), userFilename)
   
   
@@ -2225,7 +2224,65 @@ server <- function(input, output, session) {
                   "Q5_other", "Q6", "Q6_details",
                   "Q7", "Q7_other", "Q8")]
     
-    return(savedRates2)
+    
+    # Change the names of the MenAge to be MalesAge and grab the dictionary
+    foo <- names(savedRates2)
+    foo <- sub("MenAge", "MalesAge", foo)
+    names(savedRates2) <- foo
+    dictionary <- dbReadTable(inputData, "dictionary")
+    
+    
+    # Format the rate numbers into a single table
+    df <- savedRates2
+    
+    girls1 <- c("FemAge1_total", "FemAge1_dose1", "FemAge1_dose2")
+    girls2 <- c("FemAge2_total", "FemAge2_dose1", "FemAge2_dose2", "FemAge2_mening", "FemAge2_tdap")
+    girls3 <- c("FemAge3_total", "FemAge3_dose1", "FemAge3_dose2", "FemAge3_mening", "FemAge3_tdap")
+    
+    boys1 <- c("MalesAge1_total", "MalesAge1_dose1", "MalesAge1_dose2")
+    boys2 <- c("MalesAge2_total", "MalesAge2_dose1", "MalesAge2_dose2", "MalesAge2_mening", "MalesAge2_tdap")
+    boys3 <- c("MalesAge3_total", "MalesAge3_dose1", "MalesAge3_dose2", "MalesAge3_mening", "MalesAge3_tdap")
+    
+    both1 <- c("BothAge1_total", "BothAge1_dose1", "BothAge1_dose2")
+    both2 <- c("BothAge2_total", "BothAge2_dose1", "BothAge2_dose2", "BothAge2_mening", "BothAge2_tdap")
+    both3 <- c("BothAge3_total", "BothAge3_dose1", "BothAge3_dose2", "BothAge3_mening", "BothAge3_tdap")
+    
+    n1 <- c("Group", "Total", "Dose1", "Dose2")
+    n2 <- c("Group", "Total", "Dose1", "Dose2", "Meningococcal", "Tdap")
+    
+    girls1 <- data.frame(Group = "Females ages 9-10" ,df[,girls1])
+    girls2 <- data.frame(Group = "Females ages 11-12", df[,girls2])
+    girls3 <- data.frame(Group = "Females age 13",  df[,girls3])
+    names(girls1) <- n1
+    names(girls2) <- n2
+    names(girls3) <- n2
+    
+    boys1 <- data.frame(Group = "Males ages 9-10" ,df[,boys1])
+    boys2 <- data.frame(Group = "Males ages 11-12", df[,boys2])
+    boys3 <- data.frame(Group = "Males age 13",  df[,boys3])
+    names(boys1) <- n1
+    names(boys2) <- n2
+    names(boys3) <- n2
+    
+    both1 <- data.frame(Group = "Females & Males ages 9-10" ,df[,both1])
+    both2 <- data.frame(Group = "Females & Males ages 11-12", df[,both2])
+    both3 <- data.frame(Group = "Females & Males age 13",  df[,both3])
+    names(both1) <- n1
+    names(both2) <- n2
+    names(both3) <- n2
+    
+    
+    final <- bind_rows(girls1, girls2, girls3,
+                       boys1, boys2, boys3,
+                       both1, both2, both3)
+    
+    
+    
+    returnLst <- list(DataDictionary = dictionary,
+                      Rates = final,
+                      RawData = savedRates2)
+    
+    return(returnLst)
     
   })
   
@@ -2234,8 +2291,8 @@ server <- function(input, output, session) {
       paste(paste0("HPV Vaccination rates - ", Sys.Date()), ".xlsx", sep = "")
     },
     content = function(file) {
-      WriteXLS(saveData(), file, AllText = T)
-      #write.csv(saveData(), file, row.names = FALSE, na = "")
+      WriteXLS(saveData(), file, AllText = T, AdjWidth = T, BoldHeaderRow = T,
+               FreezeRow = 1)
     }
   )
   
